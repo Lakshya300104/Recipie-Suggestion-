@@ -148,8 +148,8 @@ Special thanks to:
 ---
 
 ## 📬 **Connect With Me**  
-- **LinkedIn**: [Your LinkedIn Profile](https://github.com/Lakshya300104)  
-- **GitHub**: [Your GitHub Profile](https://www.linkedin.com/in/lakshya-arora-76a567259/)  
+- **LinkedIn**: [Check my Linkedin](https://github.com/Lakshya300104)  
+- **GitHub**: [Check my Github](https://www.linkedin.com/in/lakshya-arora-76a567259/)  
 - **Email**: lakshya13004@gmail.com 
 
 ---

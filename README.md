@@ -1,6 +1,11 @@
 # **Grocery Manager Application** 🛒  
 *A Feature-Packed Grocery List Manager with Recipe Suggestions, PDF Integration, and Notifications*
 
+
+https://github.com/user-attachments/assets/e61901c7-d0b7-44e0-852f-1d08d157c291
+
+
+
 ---
 
 ## 📋 **Table of Contents**

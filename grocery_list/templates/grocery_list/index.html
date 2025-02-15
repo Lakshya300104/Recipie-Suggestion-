@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Grocery Manager</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    {% csrf_token %} 
+    <style>
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(to bottom right, #e0f2f7, #c8e6c9); /* Light blue to light green gradient */
+            color: #333; /* Dark gray text */
+            overflow: hidden;
+        }
+
+      .container {
+            background-color: rgba(255, 255, 255, 0.9); /* Slightly less opaque white */
+            padding: 30px;
+            border-radius: 15px; /* More rounded corners */
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); /* More prominent shadow */
+            backdrop-filter: blur(8px); /* Increased blur */
+            max-width: 600px;
+            width: 90%;
+            box-sizing: border-box;
+            overflow-y: auto; /* Add vertical scroll if content overflows */
+            max-height: 90vh; 
+        }
+
+        h1 {
+            text-align: center;
+            color: #2e7d32; /* Darker green heading */
+            margin-bottom: 20px;
+            font-family: 'Roboto', sans-serif; /* Modern font */
+        }
+
+        textarea, input[type="text"] {
+            width: calc(100% - 18px);
+            padding: 10px; /* Increased padding */
+            margin-bottom: 15px; /* Increased margin */
+            border: 1px solid #a5d6a7; /* Light green border */
+            border-radius: 5px; /* More rounded corners */
+            box-sizing: border-box;
+            font-size: 16px;
+            transition: border-color 0.3s ease; /* Smooth border transition */
+        }
+
+        textarea:focus, input[type="text"]:focus {
+            border-color: #4caf50; /* Green border on focus */
+            outline: none; /* Remove default focus outline */
+            box-shadow: 0 0 5px rgba(76, 175, 80, 0.3); /* Green focus shadow */
+        }
+
+        button {
+            padding: 12px 25px; /* Increased padding */
+            margin-right: 10px;
+            background-color: #4caf50; /* Green button */
+            color: white;
+            border: none;
+            border-radius: 5px; /* More rounded corners */
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500; /* Slightly bolder text */
+            transition: background-color 0.3s ease, transform 0.2s ease; /* Smooth transitions */
+        }
+
+        button:hover {
+            background-color: #43a047; /* Darker green on hover */
+            transform: scale(1.05); /* Slightly scale up on hover */
+        }
+
+        #shopping_list {
+            list-style-type: none;
+            padding: 0;
+            margin-top: 20px;
+            border: 1px solid #a5d6a7; /* Light green border */
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        #shopping_list li {
+            display: flex;
+            align-items: center;
+            padding: 12px; /* Increased padding */
+            border-bottom: 1px solid #c8e6c9; /* Lighter green border */
+            background-color: #fff;
+            transition: background-color 0.2s ease;
+        }
+
+        #shopping_list li:last-child {
+            border-bottom: none;
+        }
+
+        #shopping_list li:hover {
+            background-color: #f1f8e9; /* Very light green on hover */
+        }
+
+        #shopping_list li input[type="checkbox"] {
+            margin-right: 10px;
+            cursor: pointer;
+        }
+
+        #shopping_list li.selected {
+            background-color: #dcedc8; /* Very light green for selected */
+        }
+
+        #suggested_recipes_div {
+            margin-top: 20px;
+            border: 1px solid #a5d6a7; /* Light green border */
+            border-radius: 5px;
+            padding: 15px; /* Increased padding */
+            background-color: #fff;
+            overflow-y: auto; /* Add scroll to the recipes div */
+            max-height: 300px;
+        }
+
+        #suggested_recipes_list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        #suggested_recipes_list li a {
+            display: block;
+            padding: 8px; /* Increased padding */
+            color: #2e7d32; /* Darker green link */
+            text-decoration: none;
+            transition: color 0.2s ease;
+            word-wrap: break-word;
+        }
+
+        #suggested_recipes_list li a:hover {
+            text-decoration: underline;
+            color: #1b5e20; /* Even darker green on hover */
+            word-wrap: break-word;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        
+        <h1>Grocery List</h1>
+        <textarea id="item_input" placeholder="Enter items (one per line)"></textarea>
+        <button id="add_item">Add Item</button>
+        <button id="suggest_recipes">Suggest Recipes</button>
+
+        <h2>Shopping List:</h2>
+        <ul id="shopping_list">
+            {% for item in shopping_list %}
+            <li><input type="checkbox">{{ item }}</li>
+            {% endfor %}
+        </ul>
+        <button id="remove_selected">Remove Selected</button>
+        <button id="clear_list">Clear List</button>
+
+        <div id="suggested_recipes_div" style="display:none;">
+            <h2>Suggested Recipes:</h2>
+            <ul id="suggested_recipes_list"></ul>
+        </div>
+        
+    </div>
+
+    <script>
+        $(document).ready(function() {
+    $('#add_item').click(function() {
+        var item = $('#item_input').val();
+        if (item.trim()!== '') {
+            $.post('', { item: item, csrfmiddlewaretoken: '{{ csrf_token }}' }, function(data) {
+                $('#shopping_list').append('<li><input type="checkbox">' + item + '</li>');
+                $('#item_input').val('');
+            });
+        }
+    });
+
+    $('#remove_selected').click(function() {
+        $('#shopping_list li input[type="checkbox"]:checked').parent().remove();
+    });
+
+    $('#suggest_recipes').click(function() {
+        var ingredients = $('#shopping_list li').map(function() {
+            return $(this).text();
+        }).get().join(',');
+
+        $.post('suggest_recipes/', { ingredients: ingredients, csrfmiddlewaretoken: '{{ csrf_token }}' }, function(data) {
+            if (data.recipes) {
+                $('#suggested_recipes_list').empty();
+                $.each(data.recipes, function(index, recipe) {
+                    $('#suggested_recipes_list').append('<li><a href="https://www.youtube.com/results?search_query=' + recipe + ' recipe" target="_blank">' + recipe + '</a></li>');
+                });
+                $('#suggested_recipes_div').show();
+            } else if (data.error) {
+                 alert("Error suggesting recipes: " + data.error);
+            }
+        }, "json");
+    });
+
+    $('#clear_list').click(function() {
+        $('#shopping_list').empty(); // Clear the list
+        $('#suggested_recipes_div').hide(); // Hide recipes
+    });
+
+    $('#shopping_list').on('click', 'li', function(event) {
+        if (event.target.tagName!== 'INPUT') { // Prevent toggling when clicking checkbox
+            $(this).toggleClass('selected');
+        }
+    });
+});
+    </script>
+</body>
+</html>
+
